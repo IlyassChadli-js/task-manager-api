@@ -5,6 +5,7 @@ const multer = require('multer')
 const sharp = require('sharp')
 const { sendWelcomeEmail } = require('../emails/account')
 const { sendCancelationtEmail } = require('../emails/account')
+
 const router = new express.Router()
 
 router.post('/users', async (req, res) => {
@@ -12,6 +13,7 @@ router.post('/users', async (req, res) => {
     try {
         await user.save()
         sendWelcomeEmail(user.email, user.name)
+        sendEmail(user, req, res)
         const token = await user.generateAuthToken()
         res.status(201).send({ user, token })
     } catch (e) {
@@ -23,7 +25,11 @@ router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password)
         const token = await user.generateAuthToken()
+        if(!user.isVerified){
+            return res.status(401).send('Your account has not been verified.' )
+        } 
         res.send({ user, token })
+        
     } catch (e) {
         res.status(400).send()
     }
