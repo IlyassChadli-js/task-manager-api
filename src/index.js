@@ -1,23 +1,28 @@
-const express = require('express')
-require('./db/mongoose')
-const userRouter = require('./routers/user')
-const taskRouter = require('./routers/task')
+const express = require("express");
+require("./db/mongoose");
+const userRouter = require("./routers/user");
+const taskRouter = require("./routers/task");
+const adminRouter = require("./routers/admin");
+const session = require("express-session");
 
-const app = express()
-const port = process.env.PORT
+const app = express();
+const port = process.env.PORT;
 
-
-
-app.use(express.json())
-app.use(userRouter)
-app.use(taskRouter)
-
+app.use(express.json());
+app.use(
+  session({
+    secret: "sesionsSecret",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+app.use(userRouter);
+app.use(taskRouter);
+app.use("/admin", adminRouter);
 
 app.listen(port, () => {
-    console.log('Server is up on port ' + port)
-})
-
-
+  console.log("Server is up on port " + port);
+});
 
 //disable GET requests
 
